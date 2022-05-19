@@ -12,6 +12,10 @@ import (
 	"time"
 )
 
+var (
+	defaultVersion = sarama.V3_1_0_0
+)
+
 type KafkaConsumer struct {
 	opt       Coptions
 	receivers []Receiver
@@ -43,7 +47,11 @@ func NewKafkaConsumer(addr string, opt Coptions) *KafkaConsumer {
 	// config.Group.Mode = cluster.ConsumerModePartitions
 	//设置使用的kafka版本,如果低于V0_10_0_0版本,消息中的timestrap没有作用.需要消费和生产同时配置
 	//consumer.config.Version = sarama.V0_11_0_0
-	consumer.config.Version = sarama.V3_1_0_0
+	if opt.Kafka.Version == nil { //没设置版本
+		consumer.config.Version = defaultVersion
+	} else {
+		consumer.config.Version = *opt.Kafka.Version
+	}
 
 	return &consumer
 }
@@ -246,10 +254,13 @@ func (kac *KafkaConsumer) timeFilter(tf map[string]time.Time, t time.Time) (res 
 // @param exclude 过滤topic 不包含这些的topic
 // @return topicsInfo
 // @return err
-func GetTopicInfo(addr string, version sarama.KafkaVersion, exclude []string) (topicsInfo map[string][]int32, err error) {
+func GetTopicInfo(addr string, version *sarama.KafkaVersion, exclude []string) (topicsInfo map[string][]int32, err error) {
+	if version == nil {
+		version = &defaultVersion
+	}
 	topicsInfo = make(map[string][]int32)
 	conf := sarama.NewConfig()
-	conf.Version = version
+	conf.Version = *version
 	c, err := sarama.NewConsumer([]string{addr}, conf)
 	if err != nil {
 		return

@@ -3,6 +3,7 @@ package consumer
 import (
 	"time"
 
+	"github.com/Shopify/sarama"
 	mapset "github.com/deckarep/golang-set"
 	"github.com/fghosth/xlib/mq"
 )
@@ -51,6 +52,7 @@ type Coptions struct {
 }
 
 type KafkaOpt struct {
+	Version    *sarama.KafkaVersion
 	Topic      []string
 	GroupID    string               //offset
 	Offsets    []OffsetGroup        //不同group，topic的offset信息
