@@ -243,10 +243,10 @@ func (kac *KafkaConsumer) timeFilter(tf map[string]time.Time, t time.Time) (res 
 // @Description: 获得topic 信息，包含partitions信息
 // @param addr
 // @param version
-// @param include 过滤topic 包含这些的topic
+// @param exclude 过滤topic 不包含这些的topic
 // @return topicsInfo
 // @return err
-func GetTopicInfo(addr string, version sarama.KafkaVersion, include []string) (topicsInfo map[string][]int32, err error) {
+func GetTopicInfo(addr string, version sarama.KafkaVersion, exclude []string) (topicsInfo map[string][]int32, err error) {
 	topicsInfo = make(map[string][]int32)
 	conf := sarama.NewConfig()
 	conf.Version = version
@@ -256,7 +256,7 @@ func GetTopicInfo(addr string, version sarama.KafkaVersion, include []string) (t
 	}
 	topicArr, err := c.Topics()
 	for _, v := range topicArr {
-		if !utils.IsContainStrArr(include, v) {
+		if utils.IsContainStrArr(exclude, v) {
 			continue
 		}
 		var p []int32
