@@ -23,7 +23,7 @@ func TestGetGaugeMetrics(t *testing.T) {
 		n = n + 6.3
 		RequestTime.Set(n * 10)
 	}
-	res := GetGaugeMetrics("RequestTime_of_gauge", "prtest_job", now, RequestTime)
+	res := GetGaugeMetrics("RequestTime", "prtest_job", now, RequestTime)
 	pp.Println(res.Label, res.Sample)
 }
 
@@ -34,7 +34,7 @@ func TestGetCountMetrics(t *testing.T) {
 		n = n + 6.3
 		RequestFailOrder.Add(n * 10)
 	}
-	res := GetCountMetrics("Requestfail_order_total", "prtest_job", now, RequestFailOrder)
+	res := GetCountMetrics("Requestfail_order", "prtest_job", now, RequestFailOrder)
 	pp.Println(res.Label, res.Sample)
 }
 

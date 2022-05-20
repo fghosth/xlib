@@ -28,12 +28,12 @@ var (
 		ConstLabels: labels,
 	}) //调用时间
 	RequestFailOrder = prometheus.NewCounter(prometheus.CounterOpts{
-		Name:        "Requestfail_order_total",
+		Name:        "Requestfail_order",
 		Help:        "The total number of RequestFailOrder",
 		ConstLabels: labels,
 	})
 	RequestTime = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name:        "RequestTime_of_gauge",
+		Name:        "RequestTime",
 		Help:        "RequestTime gauge data  (ms)",
 		ConstLabels: labels,
 	})

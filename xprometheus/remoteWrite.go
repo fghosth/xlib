@@ -76,6 +76,16 @@ func RemoteWrite(data []Hdata, opt RemoteWriteOpt) (err error) {
 // @return metics
 func getCountAndGaugeMetrics(name string, job string, t time.Time, w *dto.Metric, category string) (metics Hdata) {
 	var labelMap []promwrite.Label
+	var val float64
+	var title string
+	switch category {
+	case CategoryCount:
+		val = w.Counter.GetValue()
+		title = name + "_total"
+	case CategoryGauge:
+		val = w.Gauge.GetValue()
+		title = name + "_Gauge"
+	}
 	//job and name label
 	labelMap = append(labelMap, []promwrite.Label{
 		{
@@ -84,7 +94,7 @@ func getCountAndGaugeMetrics(name string, job string, t time.Time, w *dto.Metric
 		},
 		{
 			Name:  "__name__",
-			Value: name,
+			Value: title,
 		},
 	}...)
 	for _, v := range w.Label {
@@ -93,13 +103,7 @@ func getCountAndGaugeMetrics(name string, job string, t time.Time, w *dto.Metric
 			Value: v.GetValue(),
 		})
 	}
-	var val float64
-	switch category {
-	case CategoryCount:
-		val = w.Counter.GetValue()
-	case CategoryGauge:
-		val = w.Gauge.GetValue()
-	}
+
 	// metrics
 	metics = Hdata{
 		Name:  name,

@@ -21,8 +21,8 @@ func TestKafka(t *testing.T) {
 	}
 	c := NewConsumer(mq.Kafka, addr, WithKafka(opt))
 	c.RegisterReceiver(&Kafka{})
-	//c.RegisterReceiver(&Kafka2{})
-	//c.RegisterReceiver(&Kafka3{})
+	c.RegisterReceiver(&Kafka2{})
+	c.RegisterReceiver(&Kafka3{})
 	c.Start()
 }
 
