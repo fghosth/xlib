@@ -254,7 +254,7 @@ func (kac *KafkaConsumer) timeFilter(tf map[string]time.Time, t time.Time) (res 
 // @param exclude 过滤topic 不包含这些的topic
 // @return topicsInfo
 // @return err
-func GetTopicInfo(addr string, version *sarama.KafkaVersion, exclude []string) (topicsInfo map[string][]int32, err error) {
+func GetTopicInfoExclude(addr string, version *sarama.KafkaVersion, exclude []string) (topicsInfo map[string][]int32, err error) {
 	if version == nil {
 		version = &defaultVersion
 	}
@@ -268,6 +268,39 @@ func GetTopicInfo(addr string, version *sarama.KafkaVersion, exclude []string) (
 	topicArr, err := c.Topics()
 	for _, v := range topicArr {
 		if utils.IsContainStrArr(exclude, v) {
+			continue
+		}
+		var p []int32
+		p, err = c.Partitions(v)
+		if err != nil {
+			return
+		}
+		topicsInfo[v] = p
+	}
+	return
+}
+
+// GetTopicInfoInclude
+// @Description:
+// @param addr
+// @param version
+// @param include 过滤topic 只包含这些的topic
+// @return topicsInfo
+// @return err
+func GetTopicInfoInclude(addr string, version *sarama.KafkaVersion, include []string) (topicsInfo map[string][]int32, err error) {
+	if version == nil {
+		version = &defaultVersion
+	}
+	topicsInfo = make(map[string][]int32)
+	conf := sarama.NewConfig()
+	conf.Version = *version
+	c, err := sarama.NewConsumer([]string{addr}, conf)
+	if err != nil {
+		return
+	}
+	topicArr, err := c.Topics()
+	for _, v := range topicArr {
+		if !utils.IsContainStrArr(include, v) {
 			continue
 		}
 		var p []int32

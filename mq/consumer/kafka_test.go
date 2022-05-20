@@ -80,7 +80,7 @@ func (ka Kafka3) GetTopic() Topic {
 func TestGetTopicInfo(t *testing.T) {
 	addr := "localhost:9092"
 	include := []string{"__consumer_offsets"}
-	topics, err := GetTopicInfo(addr, &sarama.V3_1_0_0, include)
+	topics, err := GetTopicInfoInclude(addr, &sarama.V3_1_0_0, include)
 	if err != nil {
 		log.Println(err)
 	}
