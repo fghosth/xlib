@@ -59,10 +59,13 @@ func RemoteWrite(data []Hdata, opt RemoteWriteOpt) (err error) {
 			Sample: v.Sample,
 		})
 	}
+	if len(pdata) <= 0 { //没有数据，返回
+		return nil
+	}
 	resp, err := client.Write(context.Background(), &promwrite.WriteRequest{
 		TimeSeries: pdata,
 	}, promwrite.WriteHeaders(header))
-	log.Println(resp)
+	log.Println("upload metric result:", resp)
 	return
 }
 
