@@ -94,9 +94,6 @@ func TestGetTopicInfo(t *testing.T) {
 	log.Println(topics)
 }
 
-func TestCreateTopic(t *testing.T) {
-}
-
 func TestGetTopicInfoExclude(t *testing.T) {
 	addr := "localhost:9092"
 	exclude := []string{"__consumer_offsets"}

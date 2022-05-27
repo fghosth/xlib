@@ -264,15 +264,15 @@ func GetTopicInfoExclude(addr string, opt Coptions, exclude []string) (topicsInf
 		conf.Net.SASL.Password = opt.Kafka.Password
 	}
 	c, err := sarama.NewConsumer([]string{addr}, conf)
+	if err != nil {
+		return
+	}
 	defer func() {
 		err = c.Close()
 		if err != nil {
 			log.Println("kafka c.Close()", err)
 		}
 	}()
-	if err != nil {
-		return
-	}
 	topicArr, err := c.Topics()
 	for _, v := range topicArr {
 		if utils.IsContainStrArr(exclude, v) {
@@ -305,15 +305,16 @@ func GetTopicInfoInclude(addr string, opt Coptions, include []string) (topicsInf
 		conf.Net.SASL.Password = opt.Kafka.Password
 	}
 	c, err := sarama.NewConsumer([]string{addr}, conf)
+	if err != nil {
+		return
+	}
 	defer func() {
 		err = c.Close()
 		if err != nil {
 			log.Println("kafka c.Close()", err)
 		}
 	}()
-	if err != nil {
-		return
-	}
+
 	topicArr, err := c.Topics()
 	for _, v := range topicArr {
 		if !utils.IsContainStrArr(include, v) {
@@ -353,15 +354,15 @@ func CreateTopic(addr string, topicName string, topicDetail sarama.TopicDetail, 
 		conf.Net.SASL.Password = opt.Kafka.Password
 	}
 	admin, err := sarama.NewClusterAdmin([]string{addr}, conf)
+	if err != nil {
+		return err
+	}
 	defer func() {
 		err = admin.Close()
 		if err != nil {
 			log.Println("kafka admin.Close()", err)
 		}
 	}()
-	if err != nil {
-		return err
-	}
 	err = admin.CreateTopic(topicName, &topicDetail, false)
 	if err != nil {
 		log.Println(err)
