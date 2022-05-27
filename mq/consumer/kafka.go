@@ -254,14 +254,22 @@ func (kac *KafkaConsumer) timeFilter(tf map[string]time.Time, t time.Time) (res 
 // @param exclude 过滤topic 不包含这些的topic
 // @return topicsInfo
 // @return err
-func GetTopicInfoExclude(addr string, version *sarama.KafkaVersion, exclude []string) (topicsInfo map[string][]int32, err error) {
-	if version == nil {
-		version = &defaultVersion
-	}
+func GetTopicInfoExclude(addr string, opt Coptions, exclude []string) (topicsInfo map[string][]int32, err error) {
 	topicsInfo = make(map[string][]int32)
 	conf := sarama.NewConfig()
-	conf.Version = *version
+	conf.Version = *opt.Kafka.Version
+	if opt.Kafka.UserName != "" && opt.Kafka.Password != "" { //使用sasl认证
+		conf.Net.SASL.Enable = true
+		conf.Net.SASL.User = opt.Kafka.UserName
+		conf.Net.SASL.Password = opt.Kafka.Password
+	}
 	c, err := sarama.NewConsumer([]string{addr}, conf)
+	defer func() {
+		err = c.Close()
+		if err != nil {
+			log.Println("kafka c.Close()", err)
+		}
+	}()
 	if err != nil {
 		return
 	}
@@ -287,14 +295,22 @@ func GetTopicInfoExclude(addr string, version *sarama.KafkaVersion, exclude []st
 // @param include 过滤topic 只包含这些的topic
 // @return topicsInfo
 // @return err
-func GetTopicInfoInclude(addr string, version *sarama.KafkaVersion, include []string) (topicsInfo map[string][]int32, err error) {
-	if version == nil {
-		version = &defaultVersion
-	}
+func GetTopicInfoInclude(addr string, opt Coptions, include []string) (topicsInfo map[string][]int32, err error) {
 	topicsInfo = make(map[string][]int32)
 	conf := sarama.NewConfig()
-	conf.Version = *version
+	conf.Version = *opt.Kafka.Version
+	if opt.Kafka.UserName != "" && opt.Kafka.Password != "" { //使用sasl认证
+		conf.Net.SASL.Enable = true
+		conf.Net.SASL.User = opt.Kafka.UserName
+		conf.Net.SASL.Password = opt.Kafka.Password
+	}
 	c, err := sarama.NewConsumer([]string{addr}, conf)
+	defer func() {
+		err = c.Close()
+		if err != nil {
+			log.Println("kafka c.Close()", err)
+		}
+	}()
 	if err != nil {
 		return
 	}
@@ -309,6 +325,46 @@ func GetTopicInfoInclude(addr string, version *sarama.KafkaVersion, include []st
 			return
 		}
 		topicsInfo[v] = p
+	}
+	return
+}
+
+// CreateTopic
+// @Description: 创建topic
+// @param addr
+// @param topicName
+// @param tipicDetail
+// @param conf
+// @return err
+func CreateTopic(addr string, topicName string, topicDetail sarama.TopicDetail, opt Coptions) (err error) {
+	//查找是否存在
+	topicList, err := GetTopicInfoInclude(addr, opt, []string{topicName})
+	if err != nil {
+		return err
+	}
+	if utils.IsHasStrArr(topicList, topicName) {
+		return nil
+	}
+	conf := sarama.NewConfig()
+	conf.Version = *opt.Kafka.Version
+	if opt.Kafka.UserName != "" && opt.Kafka.Password != "" { //使用sasl认证
+		conf.Net.SASL.Enable = true
+		conf.Net.SASL.User = opt.Kafka.UserName
+		conf.Net.SASL.Password = opt.Kafka.Password
+	}
+	admin, err := sarama.NewClusterAdmin([]string{addr}, conf)
+	defer func() {
+		err = admin.Close()
+		if err != nil {
+			log.Println("kafka admin.Close()", err)
+		}
+	}()
+	if err != nil {
+		return err
+	}
+	err = admin.CreateTopic(topicName, &topicDetail, false)
+	if err != nil {
+		log.Println(err)
 	}
 	return
 }

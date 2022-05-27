@@ -78,11 +78,58 @@ func (ka Kafka3) GetTopic() Topic {
 }
 
 func TestGetTopicInfo(t *testing.T) {
+	opt := Coptions{
+		Kafka: KafkaOpt{
+			Version:  &sarama.V3_1_0_0,
+			UserName: "",
+			Password: "",
+		},
+	}
 	addr := "localhost:9092"
 	include := []string{"__consumer_offsets"}
-	topics, err := GetTopicInfoInclude(addr, &sarama.V3_1_0_0, include)
+	topics, err := GetTopicInfoInclude(addr, opt, include)
 	if err != nil {
 		log.Println(err)
 	}
 	log.Println(topics)
+}
+
+func TestCreateTopic(t *testing.T) {
+}
+
+func TestGetTopicInfoExclude(t *testing.T) {
+	addr := "localhost:9092"
+	exclude := []string{"__consumer_offsets"}
+	opt := Coptions{
+		Kafka: KafkaOpt{
+			Version:  &sarama.V3_1_0_0,
+			UserName: "",
+			Password: "",
+		},
+	}
+	topics, err := GetTopicInfoExclude(addr, opt, exclude)
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println(topics)
+}
+
+func TestCreateTopic1(t *testing.T) {
+	addr := "localhost:9092"
+	topicName := "test"
+	opt := Coptions{
+		Kafka: KafkaOpt{
+			Version:  &sarama.V3_1_0_0,
+			UserName: "",
+			Password: "",
+		},
+	}
+	topicDetail := sarama.TopicDetail{
+		NumPartitions:     2,
+		ReplicationFactor: 1,
+	}
+	err := CreateTopic(addr, topicName, topicDetail, opt)
+	if err != nil {
+		log.Println(err)
+	}
 }
